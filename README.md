@@ -1,7 +1,7 @@
 # ProximiC
 ProximiC (prox-ihm-ih-cee) is a personal project to provide bluetooth proximity detection functionality.
 
-##WIP
+This is a WIP
 
 Dependencies:
 - BlueZ (-lbluetooth)
