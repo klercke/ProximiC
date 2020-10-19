@@ -8,5 +8,7 @@ Dependencies:
 - Linux 2.6.7 or greater
 
 Special Thanks:
+
 Albert Huang for his very helpful code examples
+
 \#archlinux-offtopic irc channel (especially xulfer and nhsp)
