@@ -1,9 +1,21 @@
+// btsearch.c
+// Konnor Klercke
+// klercke at prototypexenon dot com
+// Provides Bluetooth search functionality for ProximiC
+
 #include "btsearch.h"
 
-void listAllDevices() {
+void listAllDevices(int time) {
+	// Original code adapted from Albert Huang:
+	// https://people.csail.mit.edu/albert/bluez-intro/c404.html
+	// 
+	// Prints a list of all devices eligible for pairing to stdout
+	// 
+	// int time:	Number of seconds to search for devices
+	
 	inquiry_info *ii = NULL;
 	int max_rsp, num_rsp;
-	int dev_id, sock, len;
+	int dev_id, sock;
 	int i;
 	int flags = IREQ_CACHE_FLUSH;
 	char addr[19] = {0};
@@ -16,11 +28,10 @@ void listAllDevices() {
 		exit(1);
 	}
 
-	len = 8;
 	max_rsp = 255;
 	ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
 
-	num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
+	num_rsp = hci_inquiry(dev_id, time, max_rsp, NULL, &ii, flags);
 	if (num_rsp < 0) {
 		perror("hci_inquiry");
 	}
@@ -32,7 +43,11 @@ void listAllDevices() {
 								name, 0) < 0) {
 			strcpy(name, "[unknown]");
 		}
-		printf("%s\t%s\n", addr, name);
+		printf("Found device %s\t%s\n", addr, name);
+	}
+
+	if (num_rsp < 1) {
+		printf("No devices found after %d seconds.\n", time);
 	}
 
 	free(ii);
