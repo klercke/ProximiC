@@ -1,3 +1,8 @@
+// proximic.c
+// Konnor Klercke
+// klercke at prototypexenon dot com
+// https://github.com/klercke/proximic
+
 #include "btsearch.h"
 
 void help(char* binName) {
