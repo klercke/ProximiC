@@ -19,7 +19,7 @@ void help(char* binName) {
 	printf("\n");
 	printf("-h\t\tPrint this message.\n");
 	printf("-l [TIME]\tSearch for TIME seconds, or 10 seconds if TIME is not provided.\n");
-
+	printf("-c ADDR\tConnect to device with address ADDR.\n");
 }
 
 int main(int argc, char** argv) {
@@ -44,8 +44,21 @@ int main(int argc, char** argv) {
 
 		listAllDevices(time);
 	}
+	else if (!strcmp(cmd, "-c")) {
+		//connect to device
+			
+		if (argv[2] == NULL) {
+			printf("connect: missing address\n");
+			return 0;
+		}
+
+		int sock = connectToMAC(argv[2]);
+
+		printf("Connected to device %s on socket %d\n", argv[2], sock);
+	}
 	else if (!strcmp(cmd, "-h")) {
 		// print help statement
+
 		help(argv[0]);
 	}
 	else {

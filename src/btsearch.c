@@ -53,3 +53,25 @@ void listAllDevices(int time) {
 	free(ii);
 	close(sock);
 }
+
+int connectToMAC(char* mac) {
+	int sock = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_RFCOMM);
+
+    struct sockaddr_rc addr = { 0 };
+    int status = 0;
+
+    // set the connection parameters (who to connect to)
+    addr.rc_family = AF_BLUETOOTH;
+    addr.rc_channel = (uint8_t) 1;
+    str2ba( mac, &addr.rc_bdaddr );
+
+    // connect to server
+    status = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
+
+	if (status < 0) {
+		perror("Nonzero status:");
+	}
+
+	return sock;
+}
+
