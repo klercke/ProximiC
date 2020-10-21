@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
@@ -12,6 +13,8 @@
 
 void listAllDevices();
 
-int connectToMAC(char* mac);
+int connectToMAC(const char* mac);
+
+int getRSSI(const char* mac, const int sock);
 
 #endif

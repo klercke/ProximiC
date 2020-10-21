@@ -12,7 +12,7 @@ void listAllDevices(int time) {
 	// Prints a list of all devices eligible for pairing to stdout
 	// 
 	// int time:	Number of seconds to search for devices
-	
+
 	inquiry_info *ii = NULL;
 	int max_rsp, num_rsp;
 	int dev_id, sock;
@@ -54,24 +54,60 @@ void listAllDevices(int time) {
 	close(sock);
 }
 
-int connectToMAC(char* mac) {
-	int sock = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_RFCOMM);
+int connectToMAC(const char* mac) {
+	int sock = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
 
     struct sockaddr_rc addr = { 0 };
     int status = 0;
 
     // set the connection parameters (who to connect to)
     addr.rc_family = AF_BLUETOOTH;
-    addr.rc_channel = (uint8_t) 1;
+    addr.rc_channel = (uint8_t) 12;
     str2ba( mac, &addr.rc_bdaddr );
 
     // connect to server
     status = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
 
 	if (status < 0) {
-		perror("Nonzero status:");
+		perror("Error when connecting to device");
 	}
 
 	return sock;
 }
 
+int getRSSI(const char* mac, const int sock) {
+
+	int dev_id = hci_get_route(NULL);
+	int8_t rssi = -128;
+	bdaddr_t bdaddr;
+	struct hci_conn_info_req *cr;
+
+	str2ba(mac, &bdaddr);
+
+	if (dev_id < 0) {
+		perror("Device not connected");
+	}
+
+	int dd = hci_open_dev(dev_id); 
+	if (dd < 0) {
+		perror("HCI device open failed");
+	}
+
+	cr = malloc(sizeof(*cr) + sizeof(struct hci_conn_info));
+	if (cr == NULL) {
+		perror("Failed to allocate memory");
+	}
+
+	bacpy(&cr->bdaddr, &bdaddr);
+	cr->type = ACL_LINK;
+	if (ioctl(dd, HCIGETCONNINFO, (unsigned long) cr) < 0) {
+		perror("Getting connection info failed");
+	}
+
+	if (hci_read_rssi(dd, htobs(cr->conn_info->handle), &rssi, 1000) < 0) {
+      	perror("RSSI read failed");
+	}
+
+
+	return rssi;
+}
