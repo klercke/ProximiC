@@ -1,4 +1,4 @@
-#ifndef BTSERACH_H
+#ifndef BTSEARCH_H
 #define BTSEARCH_H
 
 #include <stdio.h>
@@ -15,6 +15,6 @@ void listAllDevices();
 
 int connectToMAC(const char* mac);
 
-int getRSSI(const char* mac, const int sock);
+int getRSSI(const char* mac);
 
 #endif

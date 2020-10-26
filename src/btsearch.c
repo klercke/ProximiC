@@ -24,7 +24,7 @@ void listAllDevices(int time) {
 	dev_id = hci_get_route(NULL);
 	sock = hci_open_dev(dev_id);
 	if (dev_id < 0 || sock < 0) {
-		perror("opening socket");
+		perror("Error opening socket");
 		exit(1);
 	}
 
@@ -75,7 +75,7 @@ int connectToMAC(const char* mac) {
 	return sock;
 }
 
-int getRSSI(const char* mac, const int sock) {
+int getRSSI(const char* mac) {
 
 	int dev_id = hci_get_route(NULL);
 	int8_t rssi = -128;
