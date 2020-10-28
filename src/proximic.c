@@ -3,6 +3,8 @@
 // klercke at prototypexenon dot com
 // https://github.com/klercke/proximic
 
+#include <getopt.h>
+
 #include "btsearch.h"
 #include "rssiwatch.h"
 
@@ -26,86 +28,79 @@ void help(char* binName) {
 }
 
 int main(int argc, char** argv) {
-	if (argc < 2){
-		printf("Usage: %s [args]\n", argv[0]);
-		return 0;
+	int option;
+	int sock, rssi;
+	double time = -1;
+
+	while ((option = getopt(argc, argv, ":ht:lc:r:w:")) != -1) {
+		switch(option) {
+			case 'h':
+				// help
+
+				help(argv[0]);
+				break;
+			case 't':
+				// set time to a different value
+
+				time = strtol(optarg, NULL, 10);
+				continue;
+			case 'l':
+				// list nearby devices
+				
+				// set time if user hasn't changed it
+				if (time == -1)
+					time = 10;
+
+				printf("Listing all nearby devices:\n");
+				listAllDevices(time);				
+				break;	
+			case 'c':
+				// connect
+
+				sock = connectToMAC(optarg);
+				printf("Connected to device %s on socket %d.\n", optarg, sock);
+				break;
+			case 'r':
+				// get rssi
+
+				sock = connectToMAC(optarg);
+
+				printf("Connected to device %s on socket %d.\n", optarg, sock);
+
+				rssi = getRSSI(optarg);
+
+				if (rssi != -128) {
+					printf("RSSI for device %s: %d.\n", optarg, rssi);
+				}
+				else {
+					printf("Failed to obtain RSSI value.\n");
+				}
+
+				break;
+			case 'w':
+				// watch rssi of device
+
+				if (time == -1)
+					time = 1;
+
+				watchDevice(optarg, time);
+				break;
+			case ':':
+				// missing args
+
+				printf("Option %c missing required argument\n", optopt);
+				break;
+			case '?':
+				// unknown option
+				
+				printf("Option -%c unknown\n", optopt);
+				break;
+		}			
 	}
-
-	char* cmd = argv[1];
-
-	if (!strcmp(cmd, "-l")) {
-		// list nearby devices
 	
-		int time = 10; // defalts to 10 sec
-
-		if (argv[2] != NULL) {
-			// allows user to overrwrite time
-			time = strtol(argv[2], NULL, 10);
-		}
-
-		printf("Listing all nearby devices:\n");
-
-		listAllDevices(time);
+	for(; optind < argc; optind++) {
+		printf("Unexpected arguement: %s\n", argv[optind]);
 	}
-	else if (!strcmp(cmd, "-c")) {
-		// connect to device
-			
-		if (argv[2] == NULL) {
-			printf("-c: missing address.\n");
-			return 0;
-		}
-
-		int sock = connectToMAC(argv[2]);
-
-		printf("Connected to device %s on socket %d.\n", argv[2], sock);
-	}
-	else if (!strcmp(cmd, "-r")) {
-		// print RSSI
-
-		if (argv[2] == NULL) {
-			printf("-r: missing address.\n");
-			return 0;
-		}
-
-		int sock = connectToMAC(argv[2]);
-
-		printf("Connected to device %s on socket %d.\n", argv[2], sock);
-
-		int rssi = getRSSI(argv[2]);
-
-		if (rssi != -128) {
-			printf("RSSI for device %s: %d.\n", argv[2], rssi);
-		}
-		else {
-			printf("Failed to obtain RSSI value.\n");
-		}
-    }
-	else if (!strcmp(cmd, "-w")) {
-		// watch RSSI
-		
-		if (argv[2] == NULL) {
-			printf("-w: missing address.\n");
-		}
-		
-		double time = 1;
-
-		if (argv[3] != NULL) {
-			time = strtod(argv[3], NULL);
-		}
-
-		watchDevice(argv[2], time);
-	}
-	else if (!strcmp(cmd, "-h")) {
-		// print help statement
-
-		help(argv[0]);
-	}
-	else {
-		// tell user input is invalid and print help statement
-		printf("Invaild command: %s\n", cmd);
-		help(argv[0]);
-	}
-
 
 	return 0;
 }
